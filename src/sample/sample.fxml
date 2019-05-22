@@ -3,7 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.ColumnConstraints?>
-<GridPane fx:id="parentBoard" prefHeight="600" prefWidth="600" fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml" alignment="center">
+<GridPane prefHeight="600" prefWidth="600" fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml" alignment="center">
 
     <columnConstraints>
         <ColumnConstraints percentWidth="5" />

@@ -6,8 +6,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +22,8 @@ public class Controller {
 
     //FXML properties
     @FXML private GridPane board;
-    @FXML private GridPane parentBoard;
 
     private List<Tile> cityList = new ArrayList<Tile>();
-    private Tile startingCity;
     private List<Tile> pathList = new ArrayList<Tile>();
 
     public void setGrid(){
@@ -119,14 +115,54 @@ public class Controller {
     }
 
     public void greedyClick(MouseEvent mouseEvent){
-
         pathList.clear();
-
-        buildCityList();
-        finRoute();
+        findRoute();
+        System.out.println(pathList);
+        buildCityListForVis();
+        Visualization vis = new Visualization(cityList,pathList);
+        vis.start(stage);
     }
 
-    private void buildCityList(){
+    private void findRoute() {
+
+        int numOfCities = countCities();
+
+        for(int i=0 ; i<numOfCities ; i++){
+            buildCityListForAlg();
+            findNeares();
+        }
+    }
+
+    public void findNeares(){
+
+        List<Double> distanceList = new ArrayList<Double>();
+        double nearest = calcDistance(tileArray[0][0],tileArray[BOARD_TILE_HEIGHT-1][BOARD_TILE_WIDTH-1]);
+        nearest = nearest + 1.0;
+        int index = 0;
+
+        for(int i=1 ; i<cityList.size() ; i++){
+            distanceList.add(calcDistance(cityList.get(0),cityList.get(i)));
+        }
+
+        for(int i=0 ; i<distanceList.size() ; i++){
+            if(distanceList.get(i)<nearest){
+                nearest = distanceList.get(i);
+                index = i;
+            }
+        }
+        if(cityList.size()==1){
+            pathList.add(cityList.get(0));
+            cityList.get(0).setState(3.0);
+            pathList.add(pathList.get(0));
+        }
+        else {
+            pathList.add(cityList.get(0));
+            cityList.get(index+1).setState(2.0);
+            cityList.get(0).setState(3.0);
+        }
+    }
+
+    private void buildCityListForAlg(){
         cityList.clear();
 
         for(int i = 0; i< tileArray.length; i++) {
@@ -144,51 +180,31 @@ public class Controller {
                 }
             }
         }
-        pathList.add(cityList.get(0));
     }
 
-    private void finRoute() {
+    private void buildCityListForVis(){
+        cityList.clear();
 
-        while(cityList.size()>0){
-            findNeares();
-            System.out.println("-------------------------------");
-        }
-        /*
-        pathList.remove(0);
-        pathList.add(startingCity);
-        System.out.println(pathList);
-                 */
-    }
-
-    public void findNeares(){
-
-        System.out.println(cityList);
-
-        List<Double> distanceList = new ArrayList<Double>();
-        double nearest = calcDistance(tileArray[0][0],tileArray[BOARD_TILE_HEIGHT-1][BOARD_TILE_WIDTH-1]);
-        nearest = nearest + 1.0;
-        int index = 0;
-
-
-        for(int i=1 ; i<cityList.size() ; i++){
-            distanceList.add(calcDistance(cityList.get(0),cityList.get(i)));
-        }
-        System.out.println(distanceList);
-
-
-        for(int i=0 ; i<distanceList.size() ; i++){
-            if(distanceList.get(i)<nearest){
-                nearest = distanceList.get(i);
-                index = i;
+        for(int i = 0; i< tileArray.length; i++) {
+            for (int j = 0; j < tileArray[0].length; j++) {
+                if(tileArray[i][j].getState()>0) {
+                    cityList.add(tileArray[i][j]);
+                }
             }
         }
-        System.out.println(nearest);
-        System.out.println(index);
+    }
 
-        //pathList.add(cityList.get(index));
-        cityList.set(0,cityList.get(index+1));
-        cityList.remove(index+1);
-        //tmpCityList.remove(0);
+    private int countCities(){
+        int counter = 0;
+
+        for(int i = 0; i< tileArray.length; i++) {
+            for (int j = 0; j < tileArray[0].length; j++) {
+                if (tileArray[i][j].getState() > 0) {
+                    counter++;
+                }
+            }
+        }
+        return counter;
     }
 
     public double calcDistance(Tile x1, Tile x2){
@@ -203,14 +219,6 @@ public class Controller {
         distance = Math.sqrt(xDis + yDis);
 
         return distance;
-    }
-
-    public double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
     }
 
 }

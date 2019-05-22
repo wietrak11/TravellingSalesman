@@ -29,21 +29,17 @@ public class Visualization extends Application{
             circleList.add(circle);
         }
 
-        //Line line = new Line();
-        //line.setStartX(100.0);
-        //line.setStartY(150.0);
-        //line.setEndX(300.0);
-        //line.setEndY(100.0);
-
         Group root = new Group();
 
         for(int i=0 ; i<circleList.size() ; i++){
             root.getChildren().add(circleList.get(i));
         }
 
-        //Line line = new Line((pathList.get(0).getX()*29)+25,(pathList.get(0).getY()*29)+25,(pathList.get(1).getX()*29)+25,(pathList.get(1).getY()*29)+25);
-        Line line = new Line(0,0,100,100);
-        root.getChildren().add(line);
+        for(int i=0; i<pathList.size()-1 ; i++){
+            Line line = new Line((pathList.get(i).getX()*29)+25,(pathList.get(i).getY()*29)+25,(pathList.get(i+1).getX()*29)+25,(pathList.get(i+1).getY()*29)+25);
+            //Line line = new Line(0,0,100,100);
+            root.getChildren().add(line);
+        }
 
         Scene scene = new Scene(root, 600, 600);
 
