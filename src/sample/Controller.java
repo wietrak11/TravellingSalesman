@@ -3,9 +3,13 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +18,9 @@ public class Controller {
     //GUI properties
     private int BOARD_TILE_WIDTH = 20;
     private int BOARD_TILE_HEIGHT = 20;
+    private int multiplier = (600/BOARD_TILE_WIDTH)-1;
+    private double radius = (1.0/(double)BOARD_TILE_WIDTH) * 200.0;
+
     private double TILE_WIDTH = 500/BOARD_TILE_WIDTH;
     private double TILE_HEIGHT = 500/BOARD_TILE_HEIGHT;
     private Stage stage;
@@ -25,6 +32,7 @@ public class Controller {
 
     private List<Tile> cityList = new ArrayList<Tile>();
     private List<Tile> pathList = new ArrayList<Tile>();
+    private List<Path> listOfPaths = new ArrayList<>();
 
     public void setGrid(){
         for(int i = 0; i< BOARD_TILE_HEIGHT; i++){
@@ -109,18 +117,115 @@ public class Controller {
         System.out.println();
     }
 
-    public void checkClick(MouseEvent mouseEvent) {
-        Visualization vis = new Visualization(cityList,pathList);
+    public void bruteClick(MouseEvent mouseEvent) {
+        pathList.clear();
+        cityList.clear();
+        listOfPaths.clear();
+
+        final long startTime = System.currentTimeMillis();
+
+        List<List<Tile>> tmp = new ArrayList<>();
+        buildCityListForAlg();
+        Tile startingPoint = cityList.get(0);
+        cityList.remove(0);
+        tmp = findAllPermutations(cityList);
+
+        for(int i=0 ; i<tmp.size() ; i++){
+            Path path = new Path(tmp.get(i));
+            path.getPathList().add(0,startingPoint);
+            path.getPathList().add(startingPoint);
+            path.calcFullDistance();
+            listOfPaths.add(path);
+        }
+
+        Path bestPath = listOfPaths.get(0);
+
+        for(int i=1 ; i<listOfPaths.size() ; i++){
+            if(listOfPaths.get(i).getFulldistance()<bestPath.getFulldistance()){
+                bestPath = listOfPaths.get(i);
+            }
+        }
+
+        final long endTime = System.currentTimeMillis();
+
+        System.out.println("BRUTE FORCE ALGORITHM");
+        System.out.println("Path:");
+        System.out.println(bestPath.getPathList());
+        System.out.println("Distance:");
+        System.out.println(bestPath.getFulldistance());
+
+        System.out.println("Time of brute force: " + (endTime-startTime) + " milliseconds");
+        System.out.println();
+
+        buildCityListForVis();
+        Visualization vis = new Visualization(cityList,bestPath.getPathList(),multiplier,radius);
         vis.start(stage);
+
+        pathList.clear();
+        cityList.clear();
+        listOfPaths.clear();
+    }
+
+    public void normalizeBoard(){
+        for(int i = 0 ; i<tileArray.length ; i++){
+            for(int j = 0 ; j<tileArray[i].length ; j++){
+                String style = tileArray[i][j].getPane().getStyle();
+                if(style.contains("red")){
+                    tileArray[i][j].setState(1.0);
+                }
+                else if(style.contains("blue")){
+                    tileArray[i][j].setState(2.0);
+                }
+                else{
+                    tileArray[i][j].setState(0.0);
+                }
+            }
+        }
     }
 
     public void greedyClick(MouseEvent mouseEvent){
-        pathList.clear();
+
+        final long startTime = System.currentTimeMillis();
+
         findRoute();
+
+        final long endTime = System.currentTimeMillis();
+
+        System.out.println("GREEDY ALGORITHM");
+        System.out.println("Path:");
         System.out.println(pathList);
+        Path p = new Path(pathList);
+        p.calcFullDistance();
+        System.out.println("Distance: " + p.getFulldistance());
+
+        System.out.println("Time of greedy algorithm: " + (endTime-startTime) + " milliseconds");
+        System.out.println();
+
         buildCityListForVis();
-        Visualization vis = new Visualization(cityList,pathList);
+        Visualization vis = new Visualization(cityList,pathList,multiplier, radius);
         vis.start(stage);
+        normalizeBoard();
+        cityList.clear();
+        pathList.clear();
+    }
+
+    public void loadClick(MouseEvent mouseEvent){
+        try(BufferedReader br = new BufferedReader(new FileReader("city.txt"))){
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while(line != null){
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            String txt = sb.toString();
+            System.out.println(txt);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void findRoute() {
@@ -180,6 +285,25 @@ public class Controller {
                 }
             }
         }
+    }
+
+    private List<List<Tile>> findAllPermutations(List<Tile> original){
+        if(original.size()==0){
+            List<List<Tile>> result = new ArrayList<List<Tile>>();
+            result.add(new ArrayList<Tile>());
+            return result;
+        }
+        Tile firstElement = original.remove(0);
+        List<List<Tile>> returnValue = new ArrayList<List<Tile>>();
+        List<List<Tile>> permutations = findAllPermutations(original);
+        for(List<Tile> smallerPermutated : permutations) {
+            for(int index=0; index <= smallerPermutated.size() ; index++){
+                List<Tile> temp = new ArrayList<Tile>(smallerPermutated);
+                temp.add(index, firstElement);
+                returnValue.add(temp);
+            }
+        }
+        return returnValue;
     }
 
     private void buildCityListForVis(){

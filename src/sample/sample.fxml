@@ -21,9 +21,11 @@
 
     <GridPane maxHeight="114" maxWidth="270" minHeight="114" minWidth="270" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
         <columnConstraints>
-            <ColumnConstraints percentWidth="49" />
+            <ColumnConstraints percentWidth="32" />
             <ColumnConstraints percentWidth="2" />
-            <ColumnConstraints percentWidth="49" />
+            <ColumnConstraints percentWidth="32" />
+            <ColumnConstraints percentWidth="2" />
+            <ColumnConstraints percentWidth="32" />
         </columnConstraints>
 
         <rowConstraints>
@@ -32,7 +34,8 @@
             <RowConstraints percentHeight="34" />
         </rowConstraints>
         <Button onMouseClicked="#greedyClick" GridPane.halignment="CENTER" GridPane.valignment="CENTER" text="Greedy" GridPane.columnIndex="0" GridPane.rowIndex="1"></Button>
-        <Button onMouseClicked="#checkClick" GridPane.halignment="CENTER" GridPane.valignment="CENTER" text="Check" GridPane.columnIndex="2" GridPane.rowIndex="1"></Button>
+        <Button onMouseClicked="#bruteClick" GridPane.halignment="CENTER" GridPane.valignment="CENTER" text="Brute" GridPane.columnIndex="2" GridPane.rowIndex="1"></Button>
+        <Button onMouseClicked="#loadClick" GridPane.halignment="CENTER" GridPane.valignment="CENTER" text="Load" GridPane.columnIndex="4" GridPane.rowIndex="1"></Button>
     </GridPane >
 
 

@@ -18,19 +18,24 @@ public class Visualization extends Application{
     private List<Tile> cityList = new ArrayList<Tile>();
     private List<Tile> pathList = new ArrayList<Tile>();
     private List<Circle> circleList = new ArrayList<Circle>();
+    private int multiplier;
+    private double radius;
 
-    public Visualization(List<Tile> cityList, List<Tile> pathList) {
+    public Visualization(List<Tile> cityList, List<Tile> pathList, int multiplier, double radius) {
         this.cityList = cityList;
         this.pathList = pathList;
+        this.multiplier = multiplier;
+        this.radius = radius;
+        System.out.println(radius);
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage1) {
 
-
+        Stage stage = new Stage();
 
         for(int i=0 ; i<cityList.size() ; i++){
-            Circle circle = new Circle((cityList.get(i).getX()*29)+25,(cityList.get(i).getY()*29)+25,10);
+            Circle circle = new Circle((cityList.get(i).getX()*multiplier)+25,(cityList.get(i).getY()*multiplier)+25,radius);
             circleList.add(circle);
         }
 
@@ -41,10 +46,10 @@ public class Visualization extends Application{
         }
 
         for(int i=0; i<pathList.size()-1 ; i++){
-            Text t = new Text((pathList.get(i).getX()*29)+35,(pathList.get(i).getY()*29)+35,Integer.toString(i));
+            Text t = new Text((pathList.get(i).getX()*multiplier)+35,(pathList.get(i).getY()*multiplier)+35,Integer.toString(i));
             t.setFont(new Font(15));
             t.setFill(Color.RED);
-            Line line = new Line((pathList.get(i).getX()*29)+25,(pathList.get(i).getY()*29)+25,(pathList.get(i+1).getX()*29)+25,(pathList.get(i+1).getY()*29)+25);
+            Line line = new Line((pathList.get(i).getX()*multiplier)+25,(pathList.get(i).getY()*multiplier)+25,(pathList.get(i+1).getX()*multiplier)+25,(pathList.get(i+1).getY()*multiplier)+25);
             root.getChildren().add(line);
             root.getChildren().add(t);
         }
