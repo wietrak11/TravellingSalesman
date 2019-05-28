@@ -18,15 +18,14 @@ public class Visualization extends Application{
     private List<Tile> cityList = new ArrayList<Tile>();
     private List<Tile> pathList = new ArrayList<Tile>();
     private List<Circle> circleList = new ArrayList<Circle>();
-    private int multiplier;
+    private double multiplier;
     private double radius;
 
-    public Visualization(List<Tile> cityList, List<Tile> pathList, int multiplier, double radius) {
+    public Visualization(List<Tile> cityList, List<Tile> pathList, double multiplier, double radius) {
         this.cityList = cityList;
         this.pathList = pathList;
         this.multiplier = multiplier;
         this.radius = radius;
-        System.out.println(radius);
     }
 
     @Override

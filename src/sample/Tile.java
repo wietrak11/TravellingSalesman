@@ -16,6 +16,12 @@ public class Tile {
         this.y = y;
     }
 
+    public Tile(Double state, int x, int y) {
+        this.state = state;
+        this.x = x;
+        this.y = y;
+    }
+
     public Pane getPane(){ return pane; }
 
     public void setState(Double state) { this.state=state; }

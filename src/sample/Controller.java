@@ -151,9 +151,7 @@ public class Controller {
         System.out.println("BRUTE FORCE ALGORITHM");
         System.out.println("Path:");
         System.out.println(bestPath.getPathList());
-        System.out.println("Distance:");
-        System.out.println(bestPath.getFulldistance());
-
+        System.out.println("Distance: " + bestPath.getFulldistance());
         System.out.println("Time of brute force: " + (endTime-startTime) + " milliseconds");
         System.out.println();
 
@@ -210,22 +208,120 @@ public class Controller {
     }
 
     public void loadClick(MouseEvent mouseEvent){
+        pathList.clear();
+        cityList.clear();
+        listOfPaths.clear();
+
         try(BufferedReader br = new BufferedReader(new FileReader("city.txt"))){
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
+            int max=0;
+            List<Tile> tmpCityList = new ArrayList<Tile>();
 
             while(line != null){
                 sb.append(line);
                 sb.append(System.lineSeparator());
                 line = br.readLine();
+                if(!(line==null)){
+                    String[] point = line.split("\\s");
+                    int x = Integer.parseInt(point[0]);
+                    int y = Integer.parseInt(point[1]);
+
+                    if(x>max){
+                        max = x;
+                    }
+                    if(y>max){
+                        max = y;
+                    }
+
+                    Tile tile = new Tile(1.0,x,y);
+                    cityList.add(tile);
+                    tmpCityList.add(tile);
+                }
             }
-            String txt = sb.toString();
-            System.out.println(txt);
+            //BRUTE-----------------------------------------------
+            final long startTime1 = System.currentTimeMillis();
+
+            List<List<Tile>> tmp = new ArrayList<>();
+            Tile startingPoint = cityList.get(0);
+            cityList.remove(0);
+            tmp = findAllPermutations(cityList);
+
+            for(int i=0 ; i<tmp.size() ; i++){
+                Path path = new Path(tmp.get(i));
+                path.getPathList().add(0,startingPoint);
+                path.getPathList().add(startingPoint);
+                path.calcFullDistance();
+                listOfPaths.add(path);
+            }
+
+            Path bestPath = listOfPaths.get(0);
+
+            for(int i=1 ; i<listOfPaths.size() ; i++){
+                if(listOfPaths.get(i).getFulldistance()<bestPath.getFulldistance()){
+                    bestPath = listOfPaths.get(i);
+                }
+            }
+
+            final long endTime1 = System.currentTimeMillis();
+
+            System.out.println("BRUTE FORCE ALGORITHM");
+            System.out.println("Path:");
+            System.out.println(bestPath.getPathList());
+            System.out.println("Distance: " + bestPath.getFulldistance());
+            System.out.println("Time of brute force: " + (endTime1-startTime1) + " milliseconds");
+            System.out.println();
+
+            Visualization vis = new Visualization(cityList,bestPath.getPathList(),0.5,0.2);
+            vis.start(stage);
+            //BRUTE -------------------------------------------------------
+            //GREEDY ------------------------------------------------------
+
+
+            tileArray = new Tile[max+1][max+1];
+            for(int i=0 ; i<max+1 ; i++){
+                for(int j=0 ; j<max+1 ; j++){
+                    tileArray[j][i] = new Tile(0.0,i,j);
+                }
+            }
+            for(int i=0 ; i<tmpCityList.size() ; i++){
+                if(i==0){
+                    tileArray[tmpCityList.get(i).getX()][tmpCityList.get(i).getY()].setState(2.0);
+                }
+                else{
+                    tileArray[tmpCityList.get(i).getX()][tmpCityList.get(i).getY()].setState(1.0);
+                }
+            }
+
+            final long startTime2 = System.currentTimeMillis();
+
+            findRoute();
+
+            final long endTime2 = System.currentTimeMillis();
+
+            System.out.println("GREEDY ALGORITHM");
+            System.out.println("Path:");
+            System.out.println(pathList);
+            Path p = new Path(pathList);
+            p.calcFullDistance();
+            System.out.println("Distance: " + p.getFulldistance());
+
+            System.out.println("Time of greedy algorithm: " + (endTime2-startTime2) + " milliseconds");
+            System.out.println();
+
+            Visualization vis2 = new Visualization(cityList,pathList,0.5,0.2);
+            vis2.start(stage);
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        tileArray = new Tile[BOARD_TILE_HEIGHT][BOARD_TILE_WIDTH];
+        pathList.clear();
+        cityList.clear();
+        listOfPaths.clear();
     }
 
     private void findRoute() {
